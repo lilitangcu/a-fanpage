@@ -43,6 +43,7 @@ export const setupIntroExperience = () => {
   let lockedCategory: ArchiveCategory | null = null;
   let width = 1;
   let height = 1;
+  const supportsHover = window.matchMedia("(hover: hover) and (pointer: fine)");
 
   const resize = () => {
     width = stage.clientWidth;
@@ -122,10 +123,14 @@ export const setupIntroExperience = () => {
 
   hotspots.forEach((hotspot) => {
     const category = hotspot.dataset.category as ArchiveCategory;
-    hotspot.addEventListener("pointerenter", () => {
-      if (!lockedCategory) openDrawer(category);
+    hotspot.addEventListener("pointerenter", (event) => {
+      if (supportsHover.matches && event.pointerType === "mouse" && !lockedCategory) {
+        openDrawer(category);
+      }
     });
-    hotspot.addEventListener("focus", () => openDrawer(category));
+    hotspot.addEventListener("focus", () => {
+      if (hotspot.matches(":focus-visible")) openDrawer(category);
+    });
     hotspot.addEventListener("click", () => {
       if (lockedCategory === category) closeDrawer(true);
       else openDrawer(category, true);
@@ -151,7 +156,7 @@ export const setupIntroExperience = () => {
     pointer.active = false;
   });
   drawer.addEventListener("pointerleave", () => {
-    if (!lockedCategory) closeDrawer();
+    if (supportsHover.matches && !lockedCategory) closeDrawer();
   });
   drawerClose.addEventListener("click", () => closeDrawer(true));
   window.addEventListener("resize", resize);

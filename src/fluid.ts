@@ -180,12 +180,14 @@ export const setupFluidCursor = (
     previousY: 0.5,
     active: false,
   };
+  const isMobile = window.matchMedia("(max-width: 640px), (pointer: coarse)").matches;
   let simulationWidth = 1;
   let simulationHeight = 1;
   let targets: ReturnType<typeof createTarget>[] = [];
   let frame = 0;
   let ambientPhase = 0;
   let lastPointerMove = 0;
+  let lastRenderTime = 0;
 
   const bindPosition = (program: WebGLProgram) => {
     const location = gl.getAttribLocation(program, "aPosition");
@@ -196,7 +198,7 @@ export const setupFluidCursor = (
   const resize = () => {
     const width = Math.max(stage.clientWidth, 1);
     const height = Math.max(stage.clientHeight, 1);
-    const dpr = Math.min(window.devicePixelRatio, 1.35);
+    const dpr = Math.min(window.devicePixelRatio, isMobile ? 1 : 1.35);
     backCanvas.width = Math.round(width * dpr);
     backCanvas.height = Math.round(height * dpr);
     frontCanvas.width = Math.round(width * dpr);
@@ -204,8 +206,9 @@ export const setupFluidCursor = (
     frontCanvas.style.width = `${width}px`;
     frontCanvas.style.height = `${height}px`;
 
-    simulationWidth = Math.max(180, Math.round(width * 0.46));
-    simulationHeight = Math.max(180, Math.round(height * 0.46));
+    const simulationScale = isMobile ? 0.3 : 0.46;
+    simulationWidth = Math.max(isMobile ? 128 : 180, Math.round(width * simulationScale));
+    simulationHeight = Math.max(isMobile ? 160 : 180, Math.round(height * simulationScale));
     targets.forEach(({ texture, framebuffer }) => {
       gl.deleteTexture(texture);
       gl.deleteFramebuffer(framebuffer);
@@ -238,7 +241,8 @@ export const setupFluidCursor = (
     const velocityX = Math.max(-0.08, Math.min(0.08, pointer.x - pointer.previousX));
     const velocityY = Math.max(-0.08, Math.min(0.08, pointer.y - pointer.previousY));
     const pointerIsMoving = pointer.active && performance.now() - lastPointerMove < 90;
-    const ambient = !pointerIsMoving && frame % 48 === 0;
+    const ambientInterval = isMobile ? 72 : 48;
+    const ambient = !pointerIsMoving && frame % ambientInterval === 0;
     if (ambient) {
       ambientPhase += 0.013;
       pointer.previousX = pointer.x;
@@ -271,7 +275,7 @@ export const setupFluidCursor = (
     );
     gl.uniform1f(
       gl.getUniformLocation(simulationProgram, "uInject"),
-      pointerIsMoving ? 0.82 : ambient ? 0.58 : 0,
+      pointerIsMoving ? (isMobile ? 0.62 : 0.82) : ambient ? (isMobile ? 0.42 : 0.58) : 0,
     );
     gl.uniform1f(gl.getUniformLocation(simulationProgram, "uTime"), time * 0.001);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -299,7 +303,7 @@ export const setupFluidCursor = (
 
     frontContext.clearRect(0, 0, frontCanvas.width, frontCanvas.height);
     frontContext.save();
-    frontContext.globalAlpha = 0.38;
+    frontContext.globalAlpha = isMobile ? 0.26 : 0.38;
     frontContext.globalCompositeOperation = "source-over";
     frontContext.filter = "blur(2px) contrast(1.08)";
     frontContext.drawImage(backCanvas, 0, 0, frontCanvas.width, frontCanvas.height);
@@ -308,7 +312,15 @@ export const setupFluidCursor = (
   };
 
   const render = (time: number) => {
-    if (isVisible() && targets.length === 2) simulate(time);
+    const frameInterval = isMobile ? 1000 / 30 : 0;
+    if (
+      isVisible() &&
+      targets.length === 2 &&
+      (!isMobile || time - lastRenderTime >= frameInterval)
+    ) {
+      lastRenderTime = time;
+      simulate(time);
+    }
     requestAnimationFrame(render);
   };
 
