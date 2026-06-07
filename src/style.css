@@ -1539,7 +1539,7 @@ a.media-strip:hover {
   inset: 0;
   background: var(--preview) center / cover no-repeat;
   content: "";
-  opacity: 1;
+  opacity: 0;
   filter: grayscale(1) blur(22px) contrast(.82);
   transform: scale(1.18);
   transition: opacity 180ms ease;
