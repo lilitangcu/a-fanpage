@@ -1340,7 +1340,7 @@ a.media-strip:hover {
 }
 
 .fan-v-outline {
-  z-index: 4;
+  z-index: 7;
   stroke: rgb(239 241 238 / 76%);
   stroke-linecap: square;
   stroke-linejoin: miter;
@@ -1349,7 +1349,7 @@ a.media-strip:hover {
 }
 
 .fan-v-outer {
-  z-index: 3;
+  z-index: 6;
   width: min(45vw, 674px);
   stroke: rgb(235 238 234 / 54%);
   stroke-linecap: square;
@@ -1979,6 +1979,8 @@ a.media-strip:hover {
 .fan-archive {
   --fan-tilt-x: 0deg;
   --fan-tilt-y: 0deg;
+  --fan-edge-left: 24%;
+  --fan-edge-right: 76%;
   min-height: 285vh;
   padding: 0 clamp(16px, 3vw, 48px) 180px;
   perspective: 1100px;
@@ -1988,7 +1990,21 @@ a.media-strip:hover {
   position: absolute;
   top: clamp(72px, 9vh, 112px);
   left: 50%;
+  width: min(62vw, 760px);
+  opacity: 0;
   transform: translateX(-50%);
+}
+
+.fan-archive-heading h2 {
+  display: grid;
+  justify-items: center;
+  width: 100%;
+}
+
+.fan-archive-heading h2 span {
+  display: block;
+  width: 100%;
+  text-align: center;
 }
 
 .fan-v-panel,
@@ -2002,12 +2018,18 @@ a.media-strip:hover {
   transform-origin: 50% 100%;
 }
 
+.fan-v-outline,
+.fan-v-outer {
+  opacity: 0;
+  transform: translateX(-50%) scaleX(0);
+}
+
 .fan-v-outer {
   width: min(56vw, 750px);
 }
 
 .fan-v-panel {
-  clip-path: polygon(50% 100%, 50% 100%, 50% 100%);
+  clip-path: polygon(0 0, 50% 100%, 100% 0);
 }
 
 .fan-portrait-motion {
@@ -2032,8 +2054,34 @@ a.media-strip:hover {
 
 .fan-v-outline path,
 .fan-v-outer path {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
+  stroke-dasharray: none;
+  stroke-dashoffset: 0;
+}
+
+.fan-reveal-mask {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 100vh;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.fan-reveal-mask i {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: #696c69;
+}
+
+.fan-reveal-mask-left {
+  clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+}
+
+.fan-reveal-mask-right {
+  clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
 }
 
 .fan-scroll-hint {
@@ -2046,6 +2094,10 @@ a.media-strip:hover {
   font: 500 9px/1.4 "DM Mono", monospace;
   letter-spacing: .16em;
   transform: translateX(-50%);
+}
+
+#app.is-fourth-page .fan-archive-heading {
+  animation: fan-copy-enter 520ms ease 1550ms both;
 }
 
 .fan-works-grid {
@@ -2282,6 +2334,21 @@ a.media-strip:hover {
   font: 400 10px/1.75 "DM Mono", monospace;
 }
 
+.ending-author-copy a,
+.ending-thanks a {
+  color: #f3f5f2;
+  text-decoration-color: rgb(243 245 242 / 42%);
+  text-underline-offset: 3px;
+}
+
+.ending-author-copy a:hover,
+.ending-author-copy a:focus-visible,
+.ending-thanks a:hover,
+.ending-thanks a:focus-visible {
+  color: #fff;
+  text-decoration-color: currentColor;
+}
+
 .ending-stage h2 {
   top: 50%;
   left: 50%;
@@ -2368,35 +2435,116 @@ a.media-strip:hover {
   100% { opacity: 0; transform: translate(-50%, -8px); }
 }
 
-#app.is-fourth-page .fan-v-outline path,
-#app.is-fourth-page .fan-v-outer path {
-  animation: fan-line-open 950ms cubic-bezier(.22, 1, .36, 1) 950ms both;
+#app.is-fourth-page .fan-v-outline,
+#app.is-fourth-page .fan-v-outer {
+  animation: fan-lines-spread 1050ms cubic-bezier(.22, 1, .36, 1) 700ms both;
 }
 
-#app.is-fourth-page .fan-v-panel {
-  animation: fan-sector-open 1200ms cubic-bezier(.22, 1, .36, 1) 1500ms both;
+#app.is-fourth-page .fan-reveal-mask-left {
+  animation: fan-mask-open-left 1050ms cubic-bezier(.22, 1, .36, 1) 700ms both;
 }
 
-@keyframes fan-line-open {
+#app.is-fourth-page .fan-reveal-mask-right {
+  animation: fan-mask-open-right 1050ms cubic-bezier(.22, 1, .36, 1) 700ms both;
+}
+
+@keyframes fan-lines-spread {
   from {
-    stroke-dashoffset: 1;
+    transform: translateX(-50%) scaleX(0);
+    opacity: 0;
   }
   to {
-    stroke-dashoffset: 0;
+    transform: translateX(-50%) scaleX(1);
+    opacity: 1;
   }
 }
 
-@keyframes fan-sector-open {
+@keyframes fan-mask-open-left {
   from {
-    clip-path: polygon(50% 100%, 50% 100%, 50% 100%);
+    clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
   }
   to {
-    clip-path: polygon(0 0, 50% 100%, 100% 0);
+    clip-path: polygon(0 0, var(--fan-edge-left) 0, 50% 100%, 0 100%);
+  }
+}
+
+@keyframes fan-mask-open-right {
+  from {
+    clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
+  }
+  to {
+    clip-path: polygon(var(--fan-edge-right) 0, 100% 0, 100% 100%, 50% 100%);
+  }
+}
+
+@keyframes fan-copy-enter {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@media (min-width: 900px) {
+  .ending-stage {
+    display: grid;
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: clamp(20px, 3vw, 64px);
+    align-items: center;
+    padding: clamp(70px, 8vw, 124px) clamp(28px, 4vw, 80px) 100px;
+  }
+
+  .ending-author,
+  .ending-stage h2,
+  .ending-thanks {
+    position: relative;
+    top: auto;
+    right: auto;
+    left: auto;
+    width: auto;
+    transform: none;
+  }
+
+  .ending-author {
+    display: grid;
+    gap: 20px;
+    align-self: start;
+    margin-top: clamp(12px, 4vh, 54px);
+  }
+
+  .ending-avatar {
+    width: clamp(76px, 6.5vw, 104px);
+  }
+
+  .ending-author-copy {
+    max-width: 320px;
+    padding-top: 0;
+  }
+
+  .ending-author-copy span,
+  .ending-thanks span {
+    font-size: clamp(9px, .72vw, 11px);
+    line-height: 1.8;
+  }
+
+  .ending-stage h2 {
+    align-self: center;
+    font-size: clamp(30px, 3.2vw, 54px);
+  }
+
+  .ending-thanks {
+    align-self: center;
+    max-width: 360px;
   }
 }
 
 @media (max-width: 640px) {
   .fan-archive {
+    --fan-edge-left: 3%;
+    --fan-edge-right: 97%;
     min-height: 390vh;
     padding-right: 10px;
     padding-left: 10px;
@@ -2532,18 +2680,23 @@ a.media-strip:hover {
     transform: none;
   }
 
-  #app.is-fourth-page .fan-v-panel,
-  #app.is-fourth-page .fan-v-outline path,
-  #app.is-fourth-page .fan-v-outer path {
+  #app.is-fourth-page .fan-v-outline,
+  #app.is-fourth-page .fan-v-outer,
+  #app.is-fourth-page .fan-reveal-mask-left,
+  #app.is-fourth-page .fan-reveal-mask-right,
+  #app.is-fourth-page .fan-archive-heading {
     animation: none;
   }
 
-  .fan-v-panel {
-    clip-path: polygon(0 0, 50% 100%, 100% 0);
+  .fan-reveal-mask-left {
+    clip-path: polygon(0 0, var(--fan-edge-left) 0, 50% 100%, 0 100%);
   }
 
-  .fan-v-outline path,
-  .fan-v-outer path {
-    stroke-dashoffset: 0;
+  .fan-reveal-mask-right {
+    clip-path: polygon(var(--fan-edge-right) 0, 100% 0, 100% 100%, 50% 100%);
+  }
+
+  .fan-archive-heading {
+    opacity: 1;
   }
 }
