@@ -1540,18 +1540,26 @@ a.media-strip:hover {
   background: var(--preview) center / cover no-repeat;
   content: "";
   opacity: 0;
-  transform: scale(.88);
-  transition: opacity 260ms ease, transform 420ms cubic-bezier(.22, 1, .36, 1);
+  filter: grayscale(1) blur(22px) contrast(.82);
+  transform: scale(1.18);
+  transition: opacity 180ms ease;
 }
 
 .fan-work::after {
   position: absolute;
-  z-index: 0;
-  inset: 0;
-  background: rgb(18 20 19 / 18%);
+  z-index: 1;
+  inset: -2px;
+  background:
+    linear-gradient(
+      90deg,
+      rgb(116 120 117 / 96%),
+      rgb(211 214 210 / 86%) 52%,
+      rgb(116 120 117 / 94%)
+    );
   content: "";
   opacity: 0;
-  transition: opacity 260ms ease;
+  transform: translateX(-104%);
+  pointer-events: none;
 }
 
 .fan-work span {
@@ -1572,21 +1580,77 @@ a.media-strip:hover {
 }
 
 .fan-work:hover::before,
-.fan-work:focus-visible::before {
-  opacity: 1;
-  transform: scale(1);
+.fan-work:focus-visible::before,
+.fan-work:active::before {
+  animation: fan-work-focus 780ms cubic-bezier(.22, 1, .36, 1) both;
 }
 
 .fan-work:hover::after,
-.fan-work:focus-visible::after {
-  opacity: 1;
+.fan-work:focus-visible::after,
+.fan-work:active::after {
+  animation: fan-work-curtain 720ms cubic-bezier(.65, 0, .2, 1) both;
+}
+
+.fan-work:nth-child(even):hover::after,
+.fan-work:nth-child(even):focus-visible::after,
+.fan-work:nth-child(even):active::after {
+  animation-name: fan-work-curtain-reverse;
 }
 
 .fan-work:hover span,
 .fan-work:hover small,
 .fan-work:focus-visible span,
-.fan-work:focus-visible small {
+.fan-work:focus-visible small,
+.fan-work:active span,
+.fan-work:active small {
   opacity: 0;
+}
+
+@keyframes fan-work-focus {
+  0% {
+    opacity: 0;
+    filter: grayscale(1) blur(24px) contrast(.78);
+    transform: scale(1.2);
+  }
+  32% {
+    opacity: 1;
+    filter: grayscale(1) blur(18px) contrast(.84);
+  }
+  100% {
+    opacity: 1;
+    filter: grayscale(.25) blur(0) contrast(1.02);
+    transform: scale(1.01);
+  }
+}
+
+@keyframes fan-work-curtain {
+  0% {
+    opacity: 1;
+    transform: translateX(-104%);
+  }
+  30% {
+    opacity: .92;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(105%);
+  }
+}
+
+@keyframes fan-work-curtain-reverse {
+  0% {
+    opacity: 1;
+    transform: translateX(104%);
+  }
+  30% {
+    opacity: .92;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-105%);
+  }
 }
 
 .fan-archive-end {
@@ -2171,9 +2235,10 @@ a.media-strip:hover {
 .ending-author {
   top: clamp(34px, 5vw, 72px);
   left: clamp(28px, 5vw, 78px);
-  display: grid;
-  gap: 14px;
-  justify-items: center;
+  display: flex;
+  width: min(25vw, 340px);
+  gap: 16px;
+  align-items: flex-start;
   opacity: 0;
   transition: opacity 420ms ease 650ms;
 }
@@ -2197,12 +2262,24 @@ a.media-strip:hover {
   filter: grayscale(1) contrast(.92);
 }
 
-.ending-author p,
+.ending-author-copy p,
 .ending-thanks p,
 .ending-stage footer {
   margin: 0;
   font: 500 9px/1.4 "DM Mono", monospace;
   letter-spacing: .16em;
+}
+
+.ending-author-copy {
+  min-width: 0;
+  padding-top: 4px;
+}
+
+.ending-author-copy span {
+  display: block;
+  margin-top: 14px;
+  color: rgb(239 241 238 / 68%);
+  font: 400 10px/1.75 "DM Mono", monospace;
 }
 
 .ending-stage h2 {
@@ -2388,6 +2465,16 @@ a.media-strip:hover {
   .ending-author {
     top: 30px;
     left: 24px;
+    width: calc(100vw - 48px);
+  }
+
+  .ending-author-copy {
+    max-width: calc(100% - 82px);
+  }
+
+  .ending-author-copy span {
+    font-size: 8px;
+    line-height: 1.55;
   }
 
   .ending-thanks {
