@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { APP_CONFIG, GESTURE_CONFIG } from "./config";
 import { setupIntroExperience } from "./intro";
+import { setupMusicExperience } from "./music";
 import { requestMotionPermission } from "./motion";
 import { setupVoiceExperience } from "./voice";
 import { compositeFragmentShader, fullscreenVertexShader } from "./shaders";
@@ -290,6 +291,7 @@ const init = async () => {
       "is-voice-page",
       "is-third-page",
       "is-fourth-page",
+      "is-page-transition",
       "is-ending-transition",
       "is-ending-page",
     );
@@ -339,6 +341,7 @@ const init = async () => {
 
 setupIntroExperience();
 setupVoiceExperience();
+setupMusicExperience();
 
 init().catch((error: unknown) => {
   console.error("Failed to initialize the reveal experience.", error);

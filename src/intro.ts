@@ -219,10 +219,24 @@ export const setupIntroExperience = () => {
     closeDrawer(true);
     app.classList.remove("is-third-page");
   });
+  let pageTransitionTimer: number | null = null;
+  let pageTransitionCleanupTimer: number | null = null;
   continueButton.addEventListener("click", () => {
-    app.classList.add("is-fourth-page");
+    if (app.classList.contains("is-page-transition")) return;
+    app.classList.add("is-page-transition");
+    pageTransitionTimer = window.setTimeout(() => {
+      app.classList.add("is-fourth-page");
+    }, 420);
+    pageTransitionCleanupTimer = window.setTimeout(() => {
+      app.classList.remove("is-page-transition");
+    }, 1320);
   });
   continuationBack.addEventListener("click", () => {
+    if (pageTransitionTimer !== null) window.clearTimeout(pageTransitionTimer);
+    if (pageTransitionCleanupTimer !== null) {
+      window.clearTimeout(pageTransitionCleanupTimer);
+    }
+    app.classList.remove("is-page-transition");
     app.classList.remove("is-ending-transition", "is-ending-page");
     app.classList.remove("is-fourth-page");
   });
@@ -272,6 +286,10 @@ export const setupIntroExperience = () => {
   window.addEventListener("resize", resize);
   window.addEventListener("beforeunload", () => {
     if (endingTimer !== null) window.clearTimeout(endingTimer);
+    if (pageTransitionTimer !== null) window.clearTimeout(pageTransitionTimer);
+    if (pageTransitionCleanupTimer !== null) {
+      window.clearTimeout(pageTransitionCleanupTimer);
+    }
   });
 
   setupFluidCursor(

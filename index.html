@@ -264,6 +264,7 @@
           </button>
         </div>
       </section>
+      <div class="page-transition-wipe" aria-hidden="true"></div>
       <div id="ending-transition" class="ending-transition" aria-hidden="true">
         <div class="ending-transition-ring">
           <span class="ending-transition-arrow">↓</span>
@@ -299,6 +300,20 @@
           <span>WEOSLYN / 2026</span>
         </footer>
       </section>
+      <div id="music-subtitles" class="music-subtitles" aria-live="polite" hidden>
+        <p id="music-subtitle-primary"></p>
+        <span id="music-subtitle-secondary"></span>
+      </div>
+      <button
+        id="music-toggle"
+        class="music-toggle"
+        type="button"
+        aria-label="暂停背景音乐"
+        aria-pressed="true"
+      >
+        <span>MUSIC</span>
+        <i aria-hidden="true"></i>
+      </button>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>
